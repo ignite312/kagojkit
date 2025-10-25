@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #f8f9fa;
+  color: #212529;
+  line-height: 1.6;
+}
+
+.card {
+  @apply bg-white rounded-lg border border-gray-300 shadow-sm;
+}
+
+.btn {
+  @apply px-5 py-2.5 rounded-md border-none text-sm font-medium cursor-pointer transition-all duration-200 inline-flex items-center gap-2;
+}
+
+.btn-primary {
+  @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+
+.btn-secondary {
+  @apply bg-gray-600 text-white hover:bg-gray-700;
+}
+
+.btn-outline {
+  @apply bg-white text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white;
+}
+
+.btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.pdf-page-container {
+  @apply bg-white border-2 border-gray-200 rounded-md p-3 cursor-pointer transition duration-200;
+}
+
+.pdf-page-container:hover {
+  @apply border-blue-600 shadow-md;
+}
+
+.pdf-page-container.selected {
+  @apply border-blue-600 bg-blue-50 shadow-[0_0_0_3px_rgba(13,110,253,0.1)];
+}
+
+.page-number {
+  @apply text-xs font-medium text-gray-600 text-center py-1.5 mb-2 bg-gray-100 rounded;
+}
+
+.pdf-page-container.selected .page-number {
+  @apply bg-blue-600 text-white;
+}
+
+.pdf-page-container.range-start {
+  @apply ring-2 ring-yellow-500 ring-offset-2;
+}
+
+.pdf-page-container.range-start .page-number {
+  @apply bg-yellow-500 text-white;
+}
+
+canvas {
+  @apply w-full h-auto rounded block;
+}
+
+.upload-area {
+  @apply border-2 border-dashed border-gray-300 rounded-lg p-12 text-center transition duration-200 cursor-pointer;
+}
+
+.upload-area:hover {
+  @apply border-blue-600 bg-gray-50;
+}
+
+.upload-area.dragging {
+  @apply border-blue-600 bg-blue-50;
+}
+
+.loading-spinner {
+  @apply border-4 border-gray-200 border-t-blue-600 rounded-full w-10 h-10 animate-spin;
+}
+
+.scroll-page {
+  @apply relative mb-6 cursor-pointer border-2 border-transparent rounded-lg p-3 transition duration-200 bg-white;
+}
+
+.scroll-page:hover {
+  @apply border-blue-600 shadow-md;
+}
+
+.scroll-page.selected {
+  @apply border-blue-600 bg-blue-50 shadow-[0_0_0_3px_rgba(13,110,253,0.1)];
+}
+
+.scroll-page-header {
+  @apply flex justify-between items-center mb-3 p-2 px-3 bg-gray-100 rounded-md;
+}
+
+.scroll-page.selected .scroll-page-header {
+  @apply bg-blue-600 text-white;
+}
+
+.scroll-page.range-start {
+  @apply ring-2 ring-yellow-500 ring-offset-2;
+}
+
+.scroll-page.range-start .scroll-page-header {
+  @apply bg-yellow-500 text-white;
+}
+
+.badge {
+  @apply inline-block px-2.5 py-1 rounded-xl text-xs font-medium;
+}
+
+.badge-primary {
+  @apply bg-blue-50 text-blue-600;
+}
