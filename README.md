@@ -1,4 +1,4 @@
-# PDFlex
+# PageExtracto
 
 **Select and extract PDF pages with flexible viewing and selection modes**
 
