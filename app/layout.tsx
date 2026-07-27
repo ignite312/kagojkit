@@ -15,7 +15,7 @@ const fraunces = Fraunces({
 })
 
 export const metadata: Metadata = {
-  title: 'Pagekit',
+  title: 'KagojKit',
   description: 'Extract, merge, and build PDFs — simply.',
 }
 

@@ -1,4 +1,4 @@
-# Pagekit
+# KagojKit
 
 Extract pages, merge PDFs, and turn images into one PDF — in the browser.
 
