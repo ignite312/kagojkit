@@ -1,3 +1,7 @@
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import FullPageCanvas from '@/components/pdf/page/FullPageCanvas'
 import type { PdfDocument } from '@/types/pdf'
 
@@ -14,29 +18,71 @@ export default function FullPagePreviewModal({
   totalPages,
   onClose,
 }: FullPagePreviewModalProps) {
-  return (
+  const [mounted, setMounted] = useState(false)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    const scrollY = window.scrollY
+    const { style } = document.body
+    const prev = {
+      position: style.position,
+      top: style.top,
+      left: style.left,
+      right: style.right,
+      width: style.width,
+      overflow: style.overflow,
+    }
+
+    style.position = 'fixed'
+    style.top = `-${scrollY}px`
+    style.left = '0'
+    style.right = '0'
+    style.width = '100%'
+    style.overflow = 'hidden'
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCloseRef.current()
+    }
+    window.addEventListener('keydown', onKey)
+
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      style.position = prev.position
+      style.top = prev.top
+      style.left = prev.left
+      style.right = prev.right
+      style.width = prev.width
+      style.overflow = prev.overflow
+      window.scrollTo(0, scrollY)
+    }
+  }, [])
+
+  if (!mounted) return null
+
+  return createPortal(
     <div
-      className="fixed inset-0 bg-black bg-opacity-90 z-50 overflow-auto"
-      onClick={onClose}
+      className="modal-scrim modal-scrim--viewport"
+      onClick={() => onCloseRef.current()}
+      role="dialog"
+      aria-modal="true"
     >
-      <div
-        className="min-h-screen flex flex-col items-center justify-start py-6 px-4"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="w-full max-w-5xl mb-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-white text-xl font-semibold">
-              Page {pageNum} of {totalPages}
-            </h3>
-            <button onClick={onClose} className="text-white hover:text-gray-300">
-              Close
-            </button>
-          </div>
+      <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-top">
+          <h3>
+            Page {pageNum} of {totalPages}
+          </h3>
+          <button type="button" onClick={() => onCloseRef.current()}>
+            Close
+          </button>
         </div>
-        <div className="w-full max-w-5xl">
-          <FullPageCanvas pdfDoc={pdfDoc} pageNum={pageNum} />
-        </div>
+        <FullPageCanvas pdfDoc={pdfDoc} pageNum={pageNum} />
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

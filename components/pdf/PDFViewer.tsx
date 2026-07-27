@@ -5,7 +5,6 @@ import ViewerToolbar from '@/components/pdf/toolbar/ViewerToolbar'
 import RangeModeBanner from '@/components/pdf/toolbar/RangeModeBanner'
 import GridView from '@/components/pdf/views/GridView'
 import ScrollView from '@/components/pdf/views/ScrollView'
-import SelectionPreviewModal from '@/components/pdf/preview/SelectionPreviewModal'
 import FullPagePreviewModal from '@/components/pdf/preview/FullPagePreviewModal'
 import { usePdfDocument } from '@/hooks/usePdfDocument'
 import { usePageSelection } from '@/hooks/usePageSelection'
@@ -23,7 +22,6 @@ export default function PDFViewer({ pdfFile, onReset }: Props) {
   const totalPages = pdfDoc?.numPages ?? 0
   const {
     selectedPages,
-    sortedSelected,
     rangeMode,
     rangeStart,
     handlePageClick,
@@ -34,9 +32,9 @@ export default function PDFViewer({ pdfFile, onReset }: Props) {
   const { thumbSizes, scrollSizes } = usePageSizes(pdfDoc)
 
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
-  const [showPreview, setShowPreview] = useState(false)
   const [extracting, setExtracting] = useState(false)
   const [fullPageView, setFullPageView] = useState<number | null>(null)
+  const [feedback, setFeedback] = useState<string | null>(null)
 
   const pages = pdfDoc
     ? Array.from({ length: pdfDoc.numPages }, (_, i) => i + 1)
@@ -44,18 +42,19 @@ export default function PDFViewer({ pdfFile, onReset }: Props) {
 
   const extractPages = async () => {
     if (selectedPages.size === 0) {
-      alert('Select at least one page')
+      setFeedback('Select at least one page.')
       return
     }
 
     setExtracting(true)
+    setFeedback(null)
     try {
       const { blob, pageCount } = await extractPagesToBlob(pdfFile, selectedPages)
       downloadBlob(blob, `extracted_${pageCount}_pages.pdf`)
-      alert('PDF extracted')
+      setFeedback(`Saved ${pageCount} page${pageCount === 1 ? '' : 's'}.`)
     } catch (err) {
       console.error(err)
-      alert('Failed to extract pages')
+      setFeedback('Could not extract pages from this PDF.')
     } finally {
       setExtracting(false)
     }
@@ -63,26 +62,26 @@ export default function PDFViewer({ pdfFile, onReset }: Props) {
 
   if (error) {
     return (
-      <div className="card p-16 text-center">
-        <p className="text-red-600 font-medium mb-4">{error}</p>
-        <button onClick={onReset} className="btn btn-secondary">
-          Try another file
+      <section className="workspace">
+        <p className="feedback is-error">{error}</p>
+        <button type="button" className="btn btn-ghost" onClick={onReset}>
+          ← Try another file
         </button>
-      </div>
+      </section>
     )
   }
 
   if (loading || !pdfDoc) {
     return (
-      <div className="card p-16 text-center">
-        <div className="loading-spinner mx-auto mb-4" />
-        <p className="text-gray-700 font-medium">Loading PDF...</p>
-      </div>
+      <section className="workspace workspace-center">
+        <div className="loading-spinner" />
+        <p className="muted">Loading PDF…</p>
+      </section>
     )
   }
 
   return (
-    <div>
+    <section className="workspace">
       <ViewerToolbar
         fileName={pdfFile.name}
         totalPages={pdfDoc.numPages}
@@ -94,12 +93,12 @@ export default function PDFViewer({ pdfFile, onReset }: Props) {
         onToggleRangeMode={toggleRangeMode}
         onSelectAll={selectAll}
         onClearSelection={clearSelection}
-        onPreview={() => setShowPreview(true)}
         onExtract={extractPages}
         onReset={onReset}
       />
 
       {rangeMode && <RangeModeBanner rangeStart={rangeStart} />}
+      {feedback && <p className="feedback">{feedback}</p>}
 
       {viewMode === 'grid' ? (
         <GridView
@@ -122,13 +121,6 @@ export default function PDFViewer({ pdfFile, onReset }: Props) {
         />
       )}
 
-      {showPreview && (
-        <SelectionPreviewModal
-          selectedPages={sortedSelected}
-          onClose={() => setShowPreview(false)}
-        />
-      )}
-
       {fullPageView !== null && (
         <FullPagePreviewModal
           pdfDoc={pdfDoc}
@@ -137,6 +129,6 @@ export default function PDFViewer({ pdfFile, onReset }: Props) {
           onClose={() => setFullPageView(null)}
         />
       )}
-    </div>
+    </section>
   )
 }

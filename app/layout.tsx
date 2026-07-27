@@ -1,9 +1,22 @@
 import type { Metadata } from 'next'
+import { DM_Sans, Fraunces } from 'next/font/google'
 import './globals.css'
 
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+})
+
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  variable: '--font-display',
+  display: 'swap',
+})
+
 export const metadata: Metadata = {
-  title: 'PageExtracto',
-  description: 'Select and extract specific pages from your PDF documents',
+  title: 'Pagekit',
+  description: 'Extract, merge, and build PDFs — simply.',
 }
 
 export default function RootLayout({
@@ -12,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${dmSans.variable} ${fraunces.variable}`}>
       <body>{children}</body>
     </html>
   )

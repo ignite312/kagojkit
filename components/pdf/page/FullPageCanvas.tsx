@@ -64,5 +64,5 @@ export default function FullPageCanvas({ pdfDoc, pageNum }: Props) {
     }
   }, [pdfDoc, pageNum])
 
-  return <canvas ref={canvasRef} className="w-full h-auto bg-white rounded-lg shadow-2xl" />
+  return <canvas ref={canvasRef} style={{ background: '#fff', borderRadius: 12 }} />
 }

@@ -2,22 +2,37 @@
 
 import { useState } from 'react'
 import Header from '@/components/layout/Header'
+import ModePicker from '@/components/layout/ModePicker'
 import PDFViewer from '@/components/pdf/PDFViewer'
-import UploadSection from '@/components/upload/UploadSection'
+import ExtractUpload from '@/components/upload/ExtractUpload'
+import MergePdfsWorkspace from '@/components/merge/MergePdfsWorkspace'
+import ImagesToPdfWorkspace from '@/components/merge/ImagesToPdfWorkspace'
+import type { AppMode } from '@/types/app'
 
 export default function Home() {
+  const [mode, setMode] = useState<AppMode>('extract')
   const [pdfFile, setPdfFile] = useState<File | null>(null)
 
-  return (
-    <div className="min-h-screen p-6">
-      <div className="max-w-7xl mx-auto">
-        <Header />
+  const changeMode = (next: AppMode) => {
+    setMode(next)
+    setPdfFile(null)
+  }
 
-        {!pdfFile ? (
-          <UploadSection onFileSelect={setPdfFile} />
-        ) : (
-          <PDFViewer pdfFile={pdfFile} onReset={() => setPdfFile(null)} />
-        )}
+  return (
+    <div className="app-shell">
+      <div className="app-frame">
+        <Header />
+        <ModePicker mode={mode} onChange={changeMode} />
+
+        {mode === 'extract' &&
+          (pdfFile ? (
+            <PDFViewer pdfFile={pdfFile} onReset={() => setPdfFile(null)} />
+          ) : (
+            <ExtractUpload onFileSelect={setPdfFile} />
+          ))}
+
+        {mode === 'merge-pdfs' && <MergePdfsWorkspace />}
+        {mode === 'images-to-pdf' && <ImagesToPdfWorkspace />}
       </div>
     </div>
   )

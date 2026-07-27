@@ -1,10 +1,10 @@
 {
-  "name": "page-extracto",
-  "version": "1.1.0",
+  "name": "pagekit",
+  "version": "1.2.0",
   "private": true,
-  "description": "Select and extract PDF pages with grid/scroll views and range selection",
+  "description": "Pagekit — extract, merge, and build PDFs in the browser",
   "scripts": {
-    "dev": "next dev",
+    "dev": "WATCHPACK_POLLING=true CHOKIDAR_USEPOLLING=true next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
