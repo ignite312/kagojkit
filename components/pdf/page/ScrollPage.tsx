@@ -1,47 +1,55 @@
-"use client"
+'use client'
 
 import React, { useEffect, useRef, memo } from 'react'
+import type { PageSize, PdfDocument } from '@/types/pdf'
 
 type Props = {
-  pdfDoc: any
+  pdfDoc: PdfDocument
   pageNum: number
   isSelected: boolean
   isRangeStart: boolean
   onPageClick: (n: number) => void
-  scrollSize?: { width: number; height: number }
+  scrollSize?: PageSize
 }
 
-export default memo(function ScrollPageComp({ pdfDoc, pageNum, isSelected, isRangeStart, onPageClick, scrollSize }: Props) {
+export default memo(function ScrollPage({
+  pdfDoc,
+  pageNum,
+  isSelected,
+  isRangeStart,
+  onPageClick,
+  scrollSize,
+}: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const renderTaskRef = useRef<any>(null)
+  const renderTaskRef = useRef<{ cancel: () => void; promise: Promise<void> } | null>(null)
 
   useEffect(() => {
     let cancelled = false
+
     const render = async () => {
       if (!pdfDoc || !canvasRef.current) return
-      
-      // Cancel any ongoing render task
+
       if (renderTaskRef.current) {
         try {
           await renderTaskRef.current.cancel()
-        } catch (e) {
+        } catch {
           // ignore cancellation errors
         }
         renderTaskRef.current = null
       }
-      
+
       if (cancelled) return
-      
+
       const page = await pdfDoc.getPage(pageNum)
       if (cancelled) return
-      
+
       const canvas = canvasRef.current
       if (!canvas) return
-      
+
       const scale = 1.2
       const viewport = page.getViewport({ scale })
       const context = canvas.getContext('2d')!
-      
+
       if (scrollSize) {
         canvas.width = scrollSize.width
         canvas.height = scrollSize.height
@@ -49,26 +57,25 @@ export default memo(function ScrollPageComp({ pdfDoc, pageNum, isSelected, isRan
         canvas.width = viewport.width
         canvas.height = viewport.height
       }
-      
+
       renderTaskRef.current = page.render({ canvasContext: context, viewport })
-      
+
       try {
         await renderTaskRef.current.promise
       } catch (e) {
-        if (!cancelled) {
-          console.error('Render error:', e)
-        }
+        if (!cancelled) console.error('Render error:', e)
       } finally {
         renderTaskRef.current = null
       }
     }
+
     render()
-    return () => { 
+    return () => {
       cancelled = true
       if (renderTaskRef.current) {
         try {
           renderTaskRef.current.cancel()
-        } catch (e) {
+        } catch {
           // ignore
         }
         renderTaskRef.current = null

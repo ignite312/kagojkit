@@ -1,33 +1,66 @@
 # dependencies
-/node_modules
-/.pnp
+node_modules/
+.pnp
 .pnp.js
+.yarn/
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
 # testing
-/coverage
+coverage/
+*.lcov
 
 # next.js
-/.next/
-/out/
+.next/
+out/
+.vercel/
 
-# production
-/build
+# production / build
+build/
+dist/
 
 # misc
 .DS_Store
 *.pem
+Thumbs.db
 
-# debug
+# debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+*.log
 
-# local env files
-.env*.local
-
-# vercel
-.vercel
+# env files (keep secrets out of git)
+.env
+.env.*
+!.env.example
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.AppleDouble
+.LSOverride
+Icon?
+
+# local caches & tooling
+.turbo/
+.cache/
+*.local
+
+# sample / large binaries (do not commit PDFs)
+*.pdf
+!docs/**/*.pdf
+
+# optional package manager artifacts
+package-lock.json.bak

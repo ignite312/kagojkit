@@ -1,47 +1,56 @@
-"use client"
+'use client'
 
 import React, { useEffect, useRef, memo } from 'react'
+import type { PageSize, PdfDocument } from '@/types/pdf'
 
 type Props = {
-  pdfDoc: any
+  pdfDoc: PdfDocument
   pageNum: number
   isSelected: boolean
   isRangeStart: boolean
   onPageClick: (n: number) => void
   onDoubleClick: (n: number) => void
-  thumbSize?: { width: number; height: number }
+  thumbSize?: PageSize
 }
 
-export default memo(function PageThumbnail({ pdfDoc, pageNum, isSelected, isRangeStart, onPageClick, onDoubleClick, thumbSize }: Props) {
+export default memo(function PageThumbnail({
+  pdfDoc,
+  pageNum,
+  isSelected,
+  isRangeStart,
+  onPageClick,
+  onDoubleClick,
+  thumbSize,
+}: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const renderTaskRef = useRef<any>(null)
-  const clickTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const renderTaskRef = useRef<{ cancel: () => void; promise: Promise<void> } | null>(null)
+  const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     let cancelled = false
+
     const render = async () => {
       if (!pdfDoc || !canvasRef.current) return
-      
-      // Cancel any ongoing render task
+
       if (renderTaskRef.current) {
         try {
           await renderTaskRef.current.cancel()
-        } catch (e) {
+        } catch {
           // ignore cancellation errors
         }
         renderTaskRef.current = null
       }
-      
+
       if (cancelled) return
-      
+
       const page = await pdfDoc.getPage(pageNum)
       if (cancelled) return
-      
+
       const scale = 0.6
       const viewport = page.getViewport({ scale })
       const canvas = canvasRef.current
       if (!canvas) return
-      
+
       const context = canvas.getContext('2d')!
       if (thumbSize) {
         canvas.width = thumbSize.width
@@ -50,26 +59,25 @@ export default memo(function PageThumbnail({ pdfDoc, pageNum, isSelected, isRang
         canvas.width = viewport.width
         canvas.height = viewport.height
       }
-      
+
       renderTaskRef.current = page.render({ canvasContext: context, viewport })
-      
+
       try {
         await renderTaskRef.current.promise
       } catch (e) {
-        if (!cancelled) {
-          console.error('Render error:', e)
-        }
+        if (!cancelled) console.error('Render error:', e)
       } finally {
         renderTaskRef.current = null
       }
     }
+
     render()
-    return () => { 
+    return () => {
       cancelled = true
       if (renderTaskRef.current) {
         try {
           renderTaskRef.current.cancel()
-        } catch (e) {
+        } catch {
           // ignore
         }
         renderTaskRef.current = null
@@ -92,7 +100,7 @@ export default memo(function PageThumbnail({ pdfDoc, pageNum, isSelected, isRang
     }, 200)
   }
 
-  const handleDoubleClick = (e: React.MouseEvent) => {
+  const handleDoubleClick = () => {
     if (clickTimerRef.current) {
       clearTimeout(clickTimerRef.current)
       clickTimerRef.current = null
